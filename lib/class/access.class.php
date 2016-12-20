@@ -323,7 +323,11 @@ class Access
         }
 
         // Clean incoming variables
+		debug_event('check_network', "ip = $ip + server = ".$_SERVER['REMOTE_ADDR']);
         $ip = $ip ?: $_SERVER['REMOTE_ADDR'];
+		if ($ip == '::1') {
+		    $ip = '127.0.0.1';
+		}
         $ip = inet_pton($ip);
 
         switch ($type) {
