@@ -92,11 +92,13 @@ class Dba {
         if (!$stmt) {
             self::$_error = json_encode($dbh->errorInfo());
             debug_event('Dba', 'Error: ' . json_encode($dbh->errorInfo()), 1);
+            debug_event('Dba', $sql, 1);
             self::disconnect();
         }
         else if ($stmt->errorCode() && $stmt->errorCode() != '00000') {
             self::$_error = json_encode($stmt->errorInfo());
             debug_event('Dba', 'Error: ' . json_encode($stmt->errorInfo()), 1);
+            debug_event('Dba', $sql, 1);
             self::disconnect();
             return false;
         }
@@ -522,3 +524,4 @@ class Dba {
     }
 }
 ?>
+

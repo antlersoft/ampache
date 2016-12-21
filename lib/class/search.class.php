@@ -47,6 +47,7 @@ class Search extends playlist_object {
             }
 
             $this->rules = unserialize($this->rules);
+		    debug_event('search construct', json_encode($this->rules), 3);
         }
 
         // Define our basetypes
@@ -317,6 +318,14 @@ class Search extends playlist_object {
                 'type'   => 'date',
                 'widget' => array('input', 'text')
             );
+
+            $this->types[] = array(
+                'name'   => 'fresh',
+                'label'  => T_('Fresh (min days)'),
+                'type'   => 'numeric',
+                'widget' => array('input', 'text')
+            );
+
 
             $catalogs = array();
             foreach (Catalog::get_catalogs() as $catid) {
@@ -659,6 +668,7 @@ class Search extends playlist_object {
                 }
             }
         }
+		debug_event('search parse_rules', json_encode($this->rules), 3);
         $this->logic_operator = $data['operator'];
     }
 
@@ -910,7 +920,7 @@ class Search extends playlist_object {
         $table = array();
         $join = array();
         $join['tag'] = array();
-
+        debug_event('search', json_encode($this->rules), 3);
         foreach ($this->rules as $rule) {
             $type = $this->name_to_basetype($rule[0]);
             foreach ($this->basetypes[$type] as $operator) {
@@ -976,6 +986,12 @@ class Search extends playlist_object {
                     $join['playlist_data'] = true;
                     $where[] = "`playlist_data`.`playlist` $sql_match_operator '$input'";
                 break;
+				case 'fresh':
+				    $join['object_count'] = true;
+					$nowtime = time();
+					$where[] = "(`lp`.`last_played` is null OR ($nowtime - `lp`.`last_played` )/86400 $sql_match_operator '$input')";
+					#$where[] = " 3 $sql_match_operator '$input'";
+				break;
                 case 'smartplaylist':
                     $subsearch = new Search('song', $input);
                     $subsql = $subsearch->to_sql();
@@ -1033,6 +1049,10 @@ class Search extends playlist_object {
         if ($join['playlist_data']) {
             $table['playlist_data'] = "LEFT JOIN `playlist_data` ON `song`.`id`=`playlist_data`.`object_id` AND `playlist_data`.`object_type`='song'";
         }
+		if ($join['object_count']) {
+            $userid = $GLOBALS['user']->id;
+			$table['object_count'] = " LEFT OUTER JOIN (SELECT `object_id`, `user`, MAX(`date`) AS last_played FROM `object_count` WHERE `object_count`.`object_type` = 'song' GROUP BY `object_count`.`object_id`, `object_count`.`user`) AS lp ON `song`.`id` = `lp`.`object_id` AND `lp`.`user` = '$userid' ";
+		}
 
         $table_sql = implode(' ', $table);
 
