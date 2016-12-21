@@ -513,7 +513,7 @@ class Api {
     public static function playlists($input) {
 
             self::$browse->reset_filters();
-            self::$browse->set_type('playlist');
+            self::$browse->set_type('smartplaylist');
             self::$browse->set_sort('name','ASC');
 
             $method = $input['exact'] ? 'exact_match' : 'alpha_match';
@@ -525,7 +525,7 @@ class Api {
             XML_Data::set_limit($input['limit']);
 
             ob_end_clean();
-            echo XML_Data::playlists($playlist_ids);
+            echo XML_Data::smart_playlists($playlist_ids);
 
     } // playlists
 
@@ -548,7 +548,7 @@ class Api {
      */
     public static function playlist_songs($input) {
 
-            $playlist = new Playlist($input['filter']);
+            $playlist = new Search('song', $input['filter']);
             $items = $playlist->get_items();
 
             foreach ($items as $object) {
