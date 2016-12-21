@@ -463,6 +463,45 @@ class XML_Data
     } // playlists
 
     /**
+     * smart_playlists
+     *
+     * This takes an array of search ids and then returns a nice pretty XML document
+     *
+     * @param    array    $playlists    (description here...)
+     * @return    string    return xml
+     */
+    public static function smart_playlists($playlists) {
+
+        if (count($playlists) > self::$limit OR self::$offset > 0) {
+            $playlists = array_slice($playlists,self::$offset,self::$limit);
+        }
+
+        $string = '';
+
+        // Foreach the playlist ids
+        foreach ($playlists as $playlist_id) {
+            $playlist = new Search('song', $playlist_id);
+            $playlist->format();
+            $item_total = 1000;
+
+            // Build this element
+            $string .= "<playlist id=\"$playlist->id\">\n" .
+                "\t<name><![CDATA[$playlist->name]]></name>\n" .
+                "\t<owner><![CDATA[$playlist->f_user]]></owner>\n" .
+                "\t<items>$item_total</items>\n" .
+                "\t<type>$playlist->type</type>\n" .
+                "</playlist>\n";
+
+
+        } // end foreach
+
+        // Build the final and then send her off
+        $final = self::_header() . $string . self::_footer();
+
+        return $final;
+    } // smart_playlists
+
+    /**
      * songs
      *
      * This returns an xml document from an array of song ids.
