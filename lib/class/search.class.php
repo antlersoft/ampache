@@ -326,6 +326,12 @@ class Search extends playlist_object {
                 'widget' => array('input', 'text')
             );
 
+			$this->types[] = array(
+                'name'   => 'randomize',
+                'label'  => T_('Randomize List'),
+                'type'   => 'boolean',
+                'widget' => array('input', 'hidden')
+            );
 
             $catalogs = array();
             foreach (Catalog::get_catalogs() as $catid) {
@@ -542,8 +548,11 @@ class Search extends playlist_object {
         }
 
         $search_info = $search->to_sql();
+		if ($search_info['randomize']) {
+			$order_sql = ' ORDER BY RAND()';
+		}
         $sql = $search_info['base'] . ' ' . $search_info['table_sql'] .
-            ' WHERE ' . $search_info['where_sql'] . " $limit_sql";
+            ' WHERE ' . $search_info['where_sql'] . $order_sql . " $limit_sql";
 
         $db_results = Dba::read($sql);
 
@@ -590,8 +599,11 @@ class Search extends playlist_object {
         $results = array();
 
         $sql = $this->to_sql();
+		if ($sql['randomize']) {
+			$order_sql = ' ORDER BY RAND()';
+		}
         $sql = $sql['base'] . ' ' . $sql['table_sql'] . ' WHERE ' .
-            $sql['where_sql'];
+            $sql['where_sql'].$order_sql;
 
         $db_results = Dba::read($sql);
 
@@ -990,7 +1002,9 @@ class Search extends playlist_object {
 				    $join['object_count'] = true;
 					$nowtime = time();
 					$where[] = "(`lp`.`last_played` is null OR ($nowtime - `lp`.`last_played` )/86400 $sql_match_operator '$input')";
-					#$where[] = " 3 $sql_match_operator '$input'";
+				break;
+				case 'randomize':
+				    $join['randomize'] = true;
 				break;
                 case 'smartplaylist':
                     $subsearch = new Search('song', $input);
@@ -1062,7 +1076,8 @@ class Search extends playlist_object {
             'where' => $where,
             'where_sql' => $where_sql,
             'table' => $table,
-            'table_sql' => $table_sql
+            'table_sql' => $table_sql,
+			'randomize' => $join['randomize']
         );
     }
 
