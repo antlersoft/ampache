@@ -363,6 +363,12 @@ class Search extends playlist_object
                 'widget' => array('input', 'text')
             );
 
+			$this->types[] = array(
+                'name'   => 'randomize',
+                'label'  => T_('Randomize List'),
+                'type'   => 'boolean',
+                'widget' => array('input', 'hidden')
+            );
 
             $catalogs = array();
             foreach (Catalog::get_catalogs() as $catid) {
@@ -686,6 +692,9 @@ class Search extends playlist_object
         }
 
         $search_info = $search->to_sql();
+		if ($search_info['randomize']) {
+			$order_sql = ' ORDER BY RAND()';
+		}
         $sql         = $search_info['base'] . ' ' . $search_info['table_sql'];
         if (!empty($search_info['where_sql'])) {
             $sql .= ' WHERE ' . $search_info['where_sql'];
@@ -696,7 +705,7 @@ class Search extends playlist_object
                 $sql .= ' HAVING ' . $search_info['having_sql'];
             }
         }
-        $sql .= ' ' . $limit_sql;
+        $sql .= $order_sql . ' ' . $limit_sql;
         $sql = trim($sql);
 
         $db_results = Dba::read($sql);
@@ -747,6 +756,9 @@ class Search extends playlist_object
         $results = array();
 
         $sqltbl = $this->to_sql();
+		if ($sql['randomize']) {
+			$this->random = 1;
+		}
         $sql    = $sqltbl['base'] . ' ' . $sqltbl['table_sql'];
         if (!empty($sqltbl['where_sql'])) {
             $sql .= ' WHERE ' . $sqltbl['where_sql'];
@@ -1294,7 +1306,9 @@ class Search extends playlist_object
 				    $join['object_count'] = true;
 					$nowtime = time();
 					$where[] = "(`lp`.`last_played` is null OR ($nowtime - `lp`.`last_played` )/86400 $sql_match_operator '$input')";
-					#$where[] = " 3 $sql_match_operator '$input'";
+				break;
+				case 'randomize':
+				    $join['randomize'] = true;
 				break;
                 case 'smartplaylist':
                     $subsearch = new Search($input, 'song');
@@ -1408,6 +1422,7 @@ class Search extends playlist_object
             'where_sql' => $where_sql,
             'table' => $table,
             'table_sql' => $table_sql,
+			'randomize' => $join['randomize']
             'group_sql' => $group_sql,
             'having_sql' => $having_sql
         );
