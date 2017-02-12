@@ -50,7 +50,7 @@
 		"needim/noty": "2.3.*",
 		"openid/php-openid": "2.*",
 		"sabre/dav": "3.*.*",
-		"maennchen/zipstream-php": "0.4.*",
+		"maennchen/zipstream-php": "0.4.0",
 		
 		"Afterster/php-echonest-api": "dev-master",
 		
