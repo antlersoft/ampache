@@ -610,7 +610,7 @@ class Api
      */
     public static function playlist_songs($input)
     {
-            $playlist = new Search('song', $input['filter']);
+            $playlist = new Search($input['filter'], 'song');
         $items    = $playlist->get_items();
 
         $songs = array();

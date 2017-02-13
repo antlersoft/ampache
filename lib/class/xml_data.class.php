@@ -480,7 +480,7 @@ class XML_Data
 
         // Foreach the playlist ids
         foreach ($playlists as $playlist_id) {
-            $playlist = new Search('song', $playlist_id);
+            $playlist = new Search($playlist_id,'song');
             $playlist->format();
             $item_total = 1000;
 

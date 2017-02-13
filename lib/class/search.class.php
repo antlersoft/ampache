@@ -53,7 +53,6 @@ class Search extends playlist_object
             }
 
             $this->rules = json_decode($this->rules, true);
-		    debug_event('search construct', json_encode($this->rules), 3);
         }
 
         // Define our basetypes
@@ -676,6 +675,7 @@ class Search extends playlist_object
         $limit  = intval($data['limit']);
         $offset = intval($data['offset']);
         $data   = Search::clean_request($data);
+		$order_sql = '';
 
         $search = new Search(null, $data['type']);
         $search->parse_rules($data);
@@ -756,8 +756,8 @@ class Search extends playlist_object
         $results = array();
 
         $sqltbl = $this->to_sql();
-		if ($sql['randomize']) {
-			$this->random = 1;
+		if ($sqltbl['randomize']) {
+			$this->random = true;
 		}
         $sql    = $sqltbl['base'] . ' ' . $sqltbl['table_sql'];
         if (!empty($sqltbl['where_sql'])) {
@@ -1200,6 +1200,7 @@ class Search extends playlist_object
     {
         $sql_logic_operator = $this->logic_operator;
 
+        $make_random = null;
         $where       = array();
         $table       = array();
         $join        = array();
@@ -1308,7 +1309,7 @@ class Search extends playlist_object
 					$where[] = "(`lp`.`last_played` is null OR ($nowtime - `lp`.`last_played` )/86400 $sql_match_operator '$input')";
 				break;
 				case 'randomize':
-				    $join['randomize'] = true;
+				    $make_random = true;
 				break;
                 case 'smartplaylist':
                     $subsearch = new Search($input, 'song');
@@ -1422,7 +1423,7 @@ class Search extends playlist_object
             'where_sql' => $where_sql,
             'table' => $table,
             'table_sql' => $table_sql,
-			'randomize' => $join['randomize']
+			'randomize' => $make_random,
             'group_sql' => $group_sql,
             'having_sql' => $having_sql
         );
