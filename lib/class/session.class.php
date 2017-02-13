@@ -207,7 +207,11 @@ class Session
         if (isset($data['username'])) {
             $username = $data['username'];
         }
-        $ip    = $_SERVER['REMOTE_ADDR'] ? inet_pton($_SERVER['REMOTE_ADDR']) : '0';
+		$rem_addr = $_SERVER['REMOTE_ADDR'];
+		if ($rem_addr == '::1') {
+			$rem_addr = '127.0.0.1';
+		}
+        $ip    = $rem_addr ? inet_pton($rem_addr) : '0';
         $type  = $data['type'];
         $value = '';
         if (isset($data['value'])) {
