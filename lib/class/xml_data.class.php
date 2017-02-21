@@ -470,19 +470,35 @@ class XML_Data
      * @param    array    $playlists    (description here...)
      * @return    string    return xml
      */
-    public static function smart_playlists($playlists) {
+    public static function smart_playlists($smartplaylists,$playlists) {
 
-        if (count($playlists) > self::$limit OR self::$offset > 0) {
-            $playlists = array_slice($playlists,self::$offset,self::$limit);
-        }
+        #if (count($playlists) > self::$limit OR self::$offset > 0) {
+        #    $playlists = array_slice($playlists,self::$offset,self::$limit);
+        #}
 
         $string = '';
 
         // Foreach the playlist ids
-        foreach ($playlists as $playlist_id) {
+        foreach ($smartplaylists as $playlist_id) {
             $playlist = new Search($playlist_id,'song');
             $playlist->format();
             $item_total = 1000;
+
+            // Build this element
+            $string .= "<playlist id=\"s$playlist->id\">\n" .
+                "\t<name><![CDATA[$playlist->name]]></name>\n" .
+                "\t<owner><![CDATA[$playlist->f_user]]></owner>\n" .
+                "\t<items>$item_total</items>\n" .
+                "\t<type>$playlist->type</type>\n" .
+                "</playlist>\n";
+
+
+        } // end foreach
+        // Foreach the playlist ids
+        foreach ($playlists as $playlist_id) {
+            $playlist = new Playlist($playlist_id);
+            $playlist->format();
+            $item_total = $playlist->get_media_count('song');
 
             // Build this element
             $string .= "<playlist id=\"$playlist->id\">\n" .
@@ -491,8 +507,6 @@ class XML_Data
                 "\t<items>$item_total</items>\n" .
                 "\t<type>$playlist->type</type>\n" .
                 "</playlist>\n";
-
-
         } // end foreach
 
         // Build the final and then send her off

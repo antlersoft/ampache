@@ -575,19 +575,26 @@ class Api
     public static function playlists($input)
     {
         self::$browse->reset_filters();
-            self::$browse->set_type('smartplaylist');
+        self::$browse->set_type('smartplaylist');
         self::$browse->set_sort('name', 'ASC');
 
         $method = $input['exact'] ? 'exact_match' : 'alpha_match';
         Api::set_filter($method, $input['filter']);
         self::$browse->set_filter('playlist_type', '1');
 
+        $smart_playlist_ids = self::$browse->get_objects();
+        self::$browse->reset_filters();
+        self::$browse->reset_select();
+        self::$browse->set_type('playlist');
+        self::$browse->set_sort('name', 'ASC');
+        $method = $input['exact'] ? 'exact_match' : 'alpha_match';
+        Api::set_filter($method, $input['filter']);
         $playlist_ids = self::$browse->get_objects();
         XML_Data::set_offset($input['offset']);
         XML_Data::set_limit($input['limit']);
 
         ob_end_clean();
-            echo XML_Data::smart_playlists($playlist_ids);
+        echo XML_Data::smart_playlists($smart_playlist_ids,$playlist_ids);
     } // playlists
 
     /**
@@ -610,7 +617,14 @@ class Api
      */
     public static function playlist_songs($input)
     {
-            $playlist = new Search($input['filter'], 'song');
+        if (substr($input['filter'],0,1) == 's')
+        {
+            $playlist = new Search(substr($input['filter'],1), 'song');
+        }
+        else
+        {
+            $playlist = new Playlist($input['filter']);
+        }
         $items    = $playlist->get_items();
 
         $songs = array();
