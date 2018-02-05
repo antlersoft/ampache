@@ -707,6 +707,7 @@ class Search extends playlist_object
         }
         $sql .= $order_sql . ' ' . $limit_sql;
         $sql = trim($sql);
+        debug_event('Search', $sql , 5);
 
         $db_results = Dba::read($sql);
 
@@ -1304,9 +1305,9 @@ class Search extends playlist_object
                     $where[]               = "`playlist_data`.`playlist` $sql_match_operator '$input'";
                 break;
 				case 'fresh':
-				    $join['object_count'] = true;
+				    $join['last_played'] = true;
 					$nowtime = time();
-					$where[] = "(`lp`.`last_played` is null OR ($nowtime - `lp`.`last_played` )/86400 $sql_match_operator '$input')";
+					$where[] = "(`lp`.`date` is null OR ($nowtime - `lp`.`date` )/86400 $sql_match_operator '$input')";
 				break;
 				case 'randomize':
 				    $make_random = true;
@@ -1407,9 +1408,9 @@ class Search extends playlist_object
             $table['catalog'] = "LEFT JOIN `catalog` AS `catalog_se` ON `catalog_se`.`id`=`song`.`catalog`";
             $where_sql .= " AND `catalog_se`.`enabled` = '1'";
         }
-		if ($join['object_count']) {
+		if ($join['last_played']) {
             $userid = $GLOBALS['user']->id;
-			$table['object_count'] = " LEFT OUTER JOIN (SELECT `object_id`, `user`, MAX(`date`) AS last_played FROM `object_count` WHERE `object_count`.`object_type` = 'song' GROUP BY `object_count`.`object_id`, `object_count`.`user`) AS lp ON `song`.`id` = `lp`.`object_id` AND `lp`.`user` = '$userid' ";
+			$table['last_played'] = " LEFT OUTER JOIN `last_played` AS `lp` ON `lp`.`object_id` = `song`.`id` AND `lp`.`object_type` = 'song' AND `lp`.`user` = '$userid' ";
 		}
 
         $table_sql  = implode(' ', $table);

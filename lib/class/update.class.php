@@ -556,6 +556,8 @@ class Update
         $update_string = "- Fix username max size to be the same one across all tables.<br />";
         $version[]     = array('version' => '380011', 'description' => $update_string);
         
+        $update_string = "- Create table for most recent play of any song.<br />";
+        $version[]     = array('version' => '380012', 'description' => $update_string);
         return $version;
     }
 
@@ -3964,4 +3966,29 @@ class Update
 
         return $retval;
     }
+
+	public static function update_380012()
+	{
+		$retval = true;
+
+		$sql = "CREATE TABLE IF NOT EXISTS `last_played` (".
+        "`id` int(11) unsigned NOT NULL AUTO_INCREMENT,".
+        "`object_type` enum('album','artist','song','playlist','genre','catalog','live_stream','video','podcast_episode') CHARACTER SET utf8 DEFAULT NULL,".
+        "`object_id` int(11) unsigned NOT NULL DEFAULT '0',".
+        "`date` int(11) unsigned NOT NULL DEFAULT '0',".
+        "`user` int(11) NOT NULL,".
+        "PRIMARY KEY (`id`),".
+        "UNIQUE KEY `object_id_key` (`object_id`,`user`,`object_type`)".
+        ") ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1";
+        $retval &= Dba::write($sql);
+
+		$sql = "INSERT INTO `last_played` (`object_type`, `object_id`, `date`, `user`) " .
+		"SELECT `object_type`, `object_id`, MAX(`date`), `user` " .
+		"FROM `object_count` " .
+		"WHERE `count_type` = 'stream' " .
+		"GROUP BY `object_id`, `user`, `object_type` ";
+        $retval &= Dba::write($sql);
+
+		return $retval;
+	}
 }

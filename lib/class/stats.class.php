@@ -114,7 +114,12 @@ class Stats
 
             $sql = "INSERT INTO `object_count` (`object_type`,`object_id`,`count_type`,`date`,`user`,`agent`, `geo_latitude`, `geo_longitude`, `geo_name`) " .
                 " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $db_results = Dba::write($sql, array($type, $oid, $count_type, time(), $user, $agent, $latitude, $longitude, $geoname));
+			$datetime = time();
+            $db_results = Dba::write($sql, array($type, $oid, $count_type, $datetime, $user, $agent, $latitude, $longitude, $geoname));
+			if ($count_type == 'stream') {
+				$sql = "INSERT INTO `last_played` (`object_type`,`object_id`,`date`,`user`) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `date` = ?";
+				$db_results &= Dba::write($sql, array($type, $oid, $datetime, $user, $datetime));
+			}
             
             if (Core::is_media($type)) {
                 Useractivity::post_activity($user, 'play', $type, $oid);
