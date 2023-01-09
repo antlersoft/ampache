@@ -43,7 +43,7 @@ class Search extends playlist_object
     /**
      * constructor
      */
-    public function __construct($id = null, $searchtype = 'song')
+    public function __construct($id = null, $searchtype = 'song', $quick_construct = false)
     {
         $this->searchtype = $searchtype;
         if ($id) {
@@ -369,78 +369,80 @@ class Search extends playlist_object
                 'widget' => array('input', 'hidden')
             );
 
-            $catalogs = array();
-            foreach (Catalog::get_catalogs() as $catid) {
-                $catalog = Catalog::create_from_id($catid);
-                $catalog->format();
-                $catalogs[$catid] = $catalog->f_name;
-            }
-            $this->types[] = array(
-                'name'   => 'catalog',
-                'label'  => T_('Catalog'),
-                'type'   => 'boolean_numeric',
-                'widget' => array('select', $catalogs)
-            );
+            if (! $quick_construct) {
+				$catalogs = array();
+				foreach (Catalog::get_catalogs() as $catid) {
+					$catalog = Catalog::create_from_id($catid);
+					$catalog->format();
+					$catalogs[$catid] = $catalog->f_name;
+				}
+				$this->types[] = array(
+					'name'   => 'catalog',
+					'label'  => T_('Catalog'),
+					'type'   => 'boolean_numeric',
+					'widget' => array('select', $catalogs)
+				);
 
-            $playlists = array();
-            foreach (Playlist::get_playlists() as $playlistid) {
-                $playlist = new Playlist($playlistid);
-                $playlist->format();
-                $playlists[$playlistid] = $playlist->f_name;
-            }
-            $this->types[] = array(
-                'name'   => 'playlist',
-                'label'  => T_('Playlist'),
-                'type' => 'boolean_numeric',
-                'widget' => array('select', $playlists)
-            );
+				$playlists = array();
+				foreach (Playlist::get_playlists() as $playlistid) {
+					$playlist = new Playlist($playlistid);
+					$playlist->format();
+					$playlists[$playlistid] = $playlist->f_name;
+				}
+				$this->types[] = array(
+					'name'   => 'playlist',
+					'label'  => T_('Playlist'),
+					'type' => 'boolean_numeric',
+					'widget' => array('select', $playlists)
+				);
 
-            $this->types[] = array(
-                'name'   => 'playlist_name',
-                'label'  => T_('Playlist Name'),
-                'type'   => 'text',
-                'widget' => array('input', 'text')
-            );
+				$this->types[] = array(
+					'name'   => 'playlist_name',
+					'label'  => T_('Playlist Name'),
+					'type'   => 'text',
+					'widget' => array('input', 'text')
+				);
 
-            $playlists = array();
-            foreach (Search::get_searches() as $playlistid) {
-                // Slightly different from the above so we don't instigate
-            // a vicious loop.
-                $playlists[$playlistid] = Search::get_name_byid($playlistid);
-            }
-            $this->types[] = array(
-                'name'   => 'smartplaylist',
-                'label'  => T_('Smart Playlist'),
-                'type'   => 'boolean_subsearch',
-                'widget' => array('select', $playlists)
-            );
+				$playlists = array();
+				foreach (Search::get_searches() as $playlistid) {
+					// Slightly different from the above so we don't instigate
+				// a vicious loop.
+					$playlists[$playlistid] = Search::get_name_byid($playlistid);
+				}
+				$this->types[] = array(
+					'name'   => 'smartplaylist',
+					'label'  => T_('Smart Playlist'),
+					'type'   => 'boolean_subsearch',
+					'widget' => array('select', $playlists)
+				);
 
-            $metadataFields          = array();
-            $metadataFieldRepository = new \Lib\Metadata\Repository\MetadataField();
-            foreach ($metadataFieldRepository->findAll() as $metadata) {
-                $metadataFields[$metadata->getId()] = $metadata->getName();
-            }
-            $this->types[] = array(
-                'name' => 'metadata',
-                'label' => T_('Metadata'),
-                'type' => 'multiple',
-                'subtypes' => $metadataFields,
-                'widget' => array('subtypes', array('input', 'text'))
-            );
+				$metadataFields          = array();
+				$metadataFieldRepository = new \Lib\Metadata\Repository\MetadataField();
+				foreach ($metadataFieldRepository->findAll() as $metadata) {
+					$metadataFields[$metadata->getId()] = $metadata->getName();
+				}
+				$this->types[] = array(
+					'name' => 'metadata',
+					'label' => T_('Metadata'),
+					'type' => 'multiple',
+					'subtypes' => $metadataFields,
+					'widget' => array('subtypes', array('input', 'text'))
+				);
 
-            $licenses = array();
-            foreach (License::get_licenses() as $license_id) {
-                $license               = new License($license_id);
-                $licenses[$license_id] = $license->name;
-            }
-            if (AmpConfig::get('licensing')) {
-                $this->types[] = array(
-                    'name'   => 'license',
-                    'label'  => T_('Music License'),
-                    'type'   => 'boolean_numeric',
-                    'widget' => array('select', $licenses)
-                );
-            }
+				$licenses = array();
+				foreach (License::get_licenses() as $license_id) {
+					$license               = new License($license_id);
+					$licenses[$license_id] = $license->name;
+				}
+				if (AmpConfig::get('licensing')) {
+					$this->types[] = array(
+						'name'   => 'license',
+						'label'  => T_('Music License'),
+						'type'   => 'boolean_numeric',
+						'widget' => array('select', $licenses)
+					);
+				}
+			}
 
         break;
         case 'album':

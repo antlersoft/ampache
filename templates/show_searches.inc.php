@@ -51,7 +51,7 @@
     <tbody>
         <?php
         foreach ($object_ids as $playlist_id) {
-            $libitem = new Search($playlist_id, 'song');
+            $libitem = new Search($playlist_id, 'song', true);
             $libitem->format(); ?>
         <tr class="<?php echo UI::flip_class(); ?>" id="smartplaylist_row_<?php echo $libitem->id; ?>">
             <?php require AmpConfig::get('prefix') . UI::find_template('show_search_row.inc.php'); ?>
