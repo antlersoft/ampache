@@ -687,6 +687,10 @@ abstract class Catalog extends database_object
 
         $sql = 'SELECT COUNT(`id`), SUM(`time`), SUM(`size`) FROM `song` ' .
             $where_sql;
+		debug_event('core', 'Catalog query: '.$sql, 5);
+		if (is_array($params)) {
+		    debug_event('core', 'Params is array', 5);
+		}
         $db_results = Dba::read($sql, $params);
         $data       = Dba::fetch_row($db_results);
         $songs      = $data[0];
@@ -712,22 +716,22 @@ abstract class Catalog extends database_object
         $artists    = $data[0];
 
         $sql            = 'SELECT COUNT(`id`) FROM `search`';
-        $db_results     = Dba::read($sql, $params);
+        $db_results     = Dba::read($sql);
         $data           = Dba::fetch_row($db_results);
         $smartplaylists = $data[0];
 
         $sql        = 'SELECT COUNT(`id`) FROM `playlist`';
-        $db_results = Dba::read($sql, $params);
+        $db_results = Dba::read($sql);
         $data       = Dba::fetch_row($db_results);
         $playlists  = $data[0];
 
         $sql          = 'SELECT COUNT(`id`) FROM `live_stream`';
-        $db_results   = Dba::read($sql, $params);
+        $db_results   = Dba::read($sql);
         $data         = Dba::fetch_row($db_results);
         $live_streams = $data[0];
 
         $sql          = 'SELECT COUNT(`id`) FROM `podcast`';
-        $db_results   = Dba::read($sql, $params);
+        $db_results   = Dba::read($sql);
         $data         = Dba::fetch_row($db_results);
         $podcasts     = $data[0];
 
