@@ -973,7 +973,7 @@ class Query
     private function set_base_sql($force = false, $custom_base = '')
     {
         // Only allow it to be set once
-        if (strlen($this->_state['base']) && !$force) {
+        if (! is_null($this->_state['base']) && strlen($this->_state['base']) && !$force) {
             return true;
         }
 
