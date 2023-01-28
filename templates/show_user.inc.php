@@ -22,7 +22,7 @@
 
 $last_seen   = $client->last_seen ? date("m\/d\/y - H:i", $client->last_seen) : T_('Never');
 $create_date = $client->create_date ? date("m\/d\/y - H:i", $client->create_date) : T_('Unknown');
-$client->format();
+$client->format(true);
 ?>
 <?php UI::show_box_top($client->f_name); ?>
 <div class="user_avatar">

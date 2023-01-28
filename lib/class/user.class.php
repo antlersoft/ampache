@@ -1003,7 +1003,7 @@ class User extends database_object
      * user for an admin, these should not be normally called when creating a
      * user object
      */
-    public function format($details = true)
+    public function format($details = false)
     {
         /* If they have a last seen date */
         if (!$this->last_seen) {

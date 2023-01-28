@@ -72,7 +72,7 @@ $web_path = AmpConfig::get('web_path');
 <?php
 foreach ($object_ids as $user_id) {
     $libitem = new User($user_id);
-    $libitem->format();
+    $libitem->format(true);
     $last_seen      = $libitem->last_seen ? date("m\/d\/Y - H:i", $libitem->last_seen) : T_('Never');
     $create_date    = $libitem->create_date ? date("m\/d\/Y - H:i", $libitem->create_date) : T_('Unknown'); ?>
 <tr class="<?php echo UI::flip_class(); ?>" id="admin_user_<?php echo $libitem->id; ?>">
