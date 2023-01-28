@@ -72,7 +72,7 @@ class Repository
         $data = array();
         $sql  = $this->assembleQuery($table, $field);
 
-        $statement = \Dba::read($sql, is_array($value) ? $value : array($value));
+        $statement = \Dba::read($sql, is_null($value) || is_array($value) ? $value : array($value));
         while ($object = \Dba::fetch_object($statement, $this->modelClassName)) {
             $data[$object->getId()] = $object;
         }

@@ -55,11 +55,15 @@ class Dba
     /**
      * query
      */
-    public static function query($sql, $params = array())
+    public static function query($sql, $params = null)
     {
         // json_encode throws errors about UTF-8 cleanliness, which we don't
         // care about here.
-        debug_event('Query', $sql . ' ' . @json_encode($params), 6);
+        if ($params) {
+            debug_event('Query', $sql . ' ' . @json_encode($params), 6);
+        } else {
+            debug_event('Query with no params', $sql, 6);
+        }
 
         // Be aggressive, be strong, be dumb
         $tries = 0;

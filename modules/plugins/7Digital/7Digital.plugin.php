@@ -39,7 +39,9 @@ class Ampache7digital
      */
     public function __construct()
     {
-        require_once AmpConfig::get('prefix') . "/modules/oauth/OAuth.php";
+		debug_event('core', 'requiring OAuth.php', 5);
+        //require_once AmpConfig::get('prefix') . "/modules/oauth/OAuth.php";
+		debug_event('core', 'done requiring OAuth.php', 5);
 
         return true;
     } // constructor
