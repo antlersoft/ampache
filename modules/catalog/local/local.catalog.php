@@ -315,6 +315,7 @@ class Catalog_local extends Catalog
             $is_video_file = Catalog::is_video_file($full_file);
         }
 
+        $is_playlist = false;
         if ($options['parse_playlist'] && AmpConfig::get('catalog_playlist_pattern')) {
             $is_playlist = Catalog::is_playlist_file($full_file);
         }

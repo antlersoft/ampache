@@ -380,9 +380,12 @@ class Song extends database_object implements media, library_item
         $replaygain_album_gain = isset($results['replaygain_album_gain']) ? $results['replaygain_album_gain'] : null;
         $replaygain_album_peak = isset($results['replaygain_album_peak']) ? $results['replaygain_album_peak'] : null;
 
-		if ($composer == '\xFF\xFE') {
+		//if ($composer == '\xFF\xFE' || $composer == '\\xFF\\xFE' || $composer == '\\\\xFF\\\\xFE') {
+		 //   $composer = null;
+		//}
+		if (ord($composer) == 255 || ord($composer)==-127) {
 		    $composer = null;
-		}
+        }
         $albumartist_id = null;
         if (!isset($results['albumartist_id'])) {
             if ($albumartist) {
