@@ -177,13 +177,16 @@ class Art extends database_object
     public static function extension($mime)
     {
         $data      = explode("/", $mime);
-        $extension = $data['1'];
+        if (array_key_exists('1', $data)) {
+            $extension = $data['1'];
 
-        if ($extension == 'jpeg') {
-            $extension = 'jpg';
+            if ($extension == 'jpeg') {
+                $extension = 'jpg';
+            }
+
+            return $extension;
         }
-
-        return $extension;
+        return null;
     } // extension
 
     /**
