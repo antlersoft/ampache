@@ -1801,8 +1801,8 @@ class Song extends database_object implements media, library_item
         $results = array();
 
         while ($row = Dba::fetch_assoc($db_results)) {
-            if (empty($row['geo_name']) && $row['latitude'] && $row['longitude']) {
-                $row['geo_name'] = Stats::get_cached_place_name($row['latitude'], $row['longitude']);
+            if (empty($row['geo_name']) && $row['geo_latitude'] && $row['geo_longitude']) {
+                $row['geo_name'] = Stats::get_cached_place_name($row['geo_latitude'], $row['geo_longitude']);
             }
             $results[] = $row;
         }
