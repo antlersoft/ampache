@@ -1089,6 +1089,50 @@ class Api
     } // rate
 
     /**
+     * Add a tag to an object, or remove one.  The tag must already exist.
+     * @param array
+     */
+    public static function addorremovetag($input)
+    {
+        ob_end_clean();
+        debug_event('api', 'Add or remove tag', 1);
+        $type   = $input['type'];
+        $id     = $input['id'];
+        $tag = $input['tag'];
+        $remove = $input['remove'];
+
+        $cleaned_value = $tag;
+        debug_event('api', 'Calling is_library_item', 1);
+        
+        if (!Core::is_library_item($type) || !$id) {
+            echo XML_Data::error('401', T_('Wrong library item type.'));
+			debug_event('api', 'Trying to rate song item not found', 1);
+        } else {
+            $item = new $type($id);
+            if (!$item->id) {
+                echo XML_Data::error('404', T_('Library item not found.'));
+				debug_event('api', 'Trying to rate library item not found', 1);
+            } else {
+                // Check and see if the tag exists, if not create it, we need the tag id from this
+                if (! strlen($cleaned_value) || !$tag_id = Tag::tag_exists($cleaned_value)) {
+                    echo XML_Data::error('401', T_('Can not use API to create a new tag.'));
+                } else {
+                    if ($remove) {
+                        debug_event('api', 'remove tag map', 1);
+                        $tag = new Tag($tag_id);
+                        $tag->remove_map($type, $id);
+                    } else {
+                        debug_event('api', 'add tag map', 1);
+                        $insert_id = Tag::add_tag_map($type, $id, $tag_id);
+                    }
+                    echo XML_Data::single_string("success");
+                }
+            }
+        } 
+        /* */  
+    }
+
+    /**
      * timeline
      * This get an user timeline
      * @param array $input
